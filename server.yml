@@ -1,0 +1,267 @@
+version: "2"
+
+services:
+  code-server:
+    image: linuxserver/code-server
+    container_name: code-server
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Brussels
+      - PASSWORD=belleman
+      - SUDO_PASSWORD=belleman
+      - DOCKER_MODS=linuxserver/mods:universal-git
+    volumes:
+      - /media/storage/configs/code-server:/config
+      - /media/storage:/workspace
+    ports:
+      - 8443:8443
+    restart: unless-stopped
+    
+  esphome:
+    image: esphome/esphome
+    container_name: esphome
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Brussels
+      - PASSWORD=belleman
+      - SUDO_PASSWORD=belleman
+    volumes:
+      - /media/storage/configs/esphome:/config
+    ports:
+      - 6052:6052
+    restart: unless-stopped
+    
+  nodered:
+    image: nodered/node-red
+    container_name: nodered
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Brussels
+    volumes:
+      - /media/storage/configs/nodered:/data
+    restart: unless-stopped 
+    
+  swag:
+    image: linuxserver/swag
+    container_name: swag
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Brussels
+      - URL=siezon.duckdns.org
+      - SUBDOMAINS=wildcard
+      - VALIDATION=duckdns
+      - DUCKDNSTOKEN=224dba13-8338-432d-a25b-702470272c6f
+      - ONLY_SUBDOMAINS=false
+    volumes:
+      - /media/storage/configs/swag:/config
+    ports:
+      - 443:443
+      - 80:80
+    restart: unless-stopped
+
+    
+  zigbee2mqtt:
+    container_name: zigbee2mqtt
+    image: koenkk/zigbee2mqtt
+    volumes:
+      - /media/storage/configs/zigbee2mqtt:/app/data
+      - /run/udev:/run/udev:ro
+    devices:
+      - /dev/ttyACM0:/dev/ttyACM0
+    restart: always
+    privileged: true
+    environment:
+      - TZ=Europe/Amsterdam
+      - DEBUG=zigbee-herdsman*
+      
+  mqtt:
+    container_name: mqtt
+    image: eclipse-mosquitto
+    volumes:
+      - /media/storage/configs/mosquitto/config:/mosquitto/config
+      - /media/storage/configs/mosquitto/data:/mosquitto/data
+      - /media/storage/configs/mosquitto/log:/mosquitto/log
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Brussels
+    restart: always
+    ports:
+      - 1883:1883
+    
+  googlehomekodi:
+    image: omertu/googlehomekodi
+    container_name: googlehomekodi
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Brussels
+      - KODI_PROTOCOL=http
+      - KODI_IP=192.168.178.38
+      - KODI_PORT=8081
+      - AUTH_TOKEN=belleman
+    volumes:
+      - /media/storage/configs/nodered:/data
+    restart: unless-stopped 
+    ports:
+      - 8099:8099
+      
+  bazarr:
+    image: linuxserver/bazarr
+    container_name: bazarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Brussels
+    volumes:
+      - /media/storage/configs/bazarr:/config
+      - /media/storage:/storage
+    ports:
+      - 6767:6767
+    restart: unless-stopped
+    
+  radarr:
+    image: linuxserver/radarr
+    container_name: radarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Brussels
+    volumes:
+      - /media/storage/configs/radarr:/config
+      - /media/storage:/storage
+    ports:
+      - 7878:7878
+    restart: unless-stopped
+ 
+  sonarr:
+    image: linuxserver/sonarr
+    container_name: sonarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Brussels
+    volumes:
+      - /media/storage/configs/sonarr:/config
+      - /media/storage:/storage
+    ports:
+      - 8989:8989
+    restart: unless-stopped
+    
+  nzbget:
+    image: linuxserver/nzbget
+    container_name: nzbget
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Brussels
+    volumes:
+      - /media/storage/configs/nzbget:/config
+      - /media/storage:/storage
+    ports:
+      - 6789:6789
+    restart: unless-stopped
+    
+  transmission:
+    image: linuxserver/transmission
+    container_name: transmission
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Brussels
+      - TRANSMISSION_WEB_HOME=/combustion-release/ #optional
+      - USER=siemon #optional
+      - PASS=belleman #optional
+    volumes:
+      - /media/storage/configs/transmission:/config
+      - /media/storage:/storage
+    ports:
+      - 9091:9091
+      - 51413:51413
+      - 51413:51413/udp
+    restart: unless-stopped
+    
+  duplicati:
+    image: ghcr.io/linuxserver/duplicati
+    container_name: duplicati
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Brussels
+    volumes:
+      - /media/storage/configs/duplicati:/config
+      - /media/storage/backups:/backups
+      - /media/storage/:/source
+    ports:
+      - 8200:8200
+    restart: unless-stopped
+    
+  dsmrdb:
+    # When using Postgres, release 12.x is supported only
+    # due to the limited availability of client packages, especially for arm32v7
+    image: postgres:13
+    container_name: postgres
+    restart: always
+    volumes:
+      - /media/storage/configs/dsmr/dsmrdb:/var/lib/postgresql/data
+    environment:
+      - TZ=Europe/Amsterdam
+      - PG_TZ=Europe/Amsterdam
+      - POSTGRES_USER=dsmrreader
+      - POSTGRES_PASSWORD=dsmrreader
+      - POSTGRES_DB=dsmrreader
+
+  dsmr:
+    image: xirixiz/dsmr-reader-docker:latest
+    container_name: dsmr
+    depends_on:
+      - dsmrdb
+    cap_add:
+      - NET_ADMIN
+    restart: always
+    volumes:
+      - /media/storage/configs/dsmr/dsmr_backups:/dsmr/backups
+    environment:
+      - DJANGO_TIME_ZONE=Europe/Amsterdam
+      - VIRTUAL_HOST=localhost
+      - DATALOGGER_MODE=receiver
+    ports:
+      - 7777:80
+      - 7779:443
+      
+  filebrowser:
+    image: hurlenko/filebrowser
+    container_name: filebrowser
+    ports:
+      - 9001:8080
+    volumes:
+      - /media/storage:/data
+      - /media/storage/configs/filebrowser:/config
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Brussels
+      - FB_BASEURL=/filebrowser
+    restart: always
+    
+  jellyfin:
+    image: ghcr.io/linuxserver/jellyfin
+    container_name: jellyfin
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Brussels
+      - JELLYFIN_PublishedServerUrl=192.168.178.38 #optional
+    volumes:
+      - /media/storage/configs/jellyfin:/config
+      - /media/storage:/storage
+    ports:
+      - 8096:8096
+      - 8920:8920 #optional
+      #- 7359:7359/udp #optional
+      #- 1900:1900/udp #optional
+    restart: unless-stopped
