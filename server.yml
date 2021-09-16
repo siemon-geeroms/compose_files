@@ -275,8 +275,3 @@ services:
     restart: unless-stopped
     privileged: true
     network_mode: host
-
-    networks:
-    default:
-        external:
-            name: test
