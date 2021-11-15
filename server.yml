@@ -16,7 +16,7 @@ services:
       - /media/storage:/workspace
     ports:
       - 8443:8443
-    restart: unless-stopped
+    restart: always
     
   esphome:
     image: esphome/esphome
@@ -31,7 +31,7 @@ services:
       - /media/storage/configs/esphome:/config
     ports:
       - 6052:6052
-    restart: unless-stopped
+    restart: always
     
   nodered:
     image: nodered/node-red
@@ -42,7 +42,7 @@ services:
       - TZ=Europe/Brussels
     volumes:
       - /media/storage/configs/nodered:/data
-    restart: unless-stopped 
+    restart: always 
     
   swag:
     image: linuxserver/swag
@@ -61,7 +61,7 @@ services:
     ports:
       - 443:443
       - 80:80
-    restart: unless-stopped
+    restart: always
 
     
   zigbee2mqtt:
@@ -106,7 +106,7 @@ services:
       - AUTH_TOKEN=belleman
     volumes:
       - /media/storage/configs/nodered:/data
-    restart: unless-stopped 
+    restart: always 
     ports:
       - 8099:8099
       
@@ -122,7 +122,7 @@ services:
       - /media/storage:/storage
     ports:
       - 6767:6767
-    restart: unless-stopped
+    restart: always
     
   radarr:
     image: linuxserver/radarr
@@ -136,7 +136,7 @@ services:
       - /media/storage:/storage
     ports:
       - 7878:7878
-    restart: unless-stopped
+    restart: always
  
   sonarr:
     image: linuxserver/sonarr
@@ -150,7 +150,7 @@ services:
       - /media/storage:/storage
     ports:
       - 8989:8989
-    restart: unless-stopped
+    restart: always
     
   nzbget:
     image: linuxserver/nzbget
@@ -164,7 +164,7 @@ services:
       - /media/storage:/storage
     ports:
       - 6789:6789
-    restart: unless-stopped
+    restart: always
     
   transmission:
     image: linuxserver/transmission
@@ -183,7 +183,7 @@ services:
       - 9091:9091
       - 51413:51413
       - 51413:51413/udp
-    restart: unless-stopped
+    restart: always
     
   duplicati:
     image: ghcr.io/linuxserver/duplicati
@@ -198,7 +198,7 @@ services:
       - /media/storage/:/source
     ports:
       - 8200:8200
-    restart: unless-stopped
+    restart: always
     
   dsmrdb:
     # When using Postgres, release 12.x is supported only
@@ -264,7 +264,9 @@ services:
       - 8920:8920 #optional
       #- 7359:7359/udp #optional
       #- 1900:1900/udp #optional
-    restart: unless-stopped
+    devices:
+      - /dev/vchiq:/dev/vchiq
+    restart: always
 
   hass:
     container_name: hass
@@ -272,6 +274,6 @@ services:
     volumes:
       - /media/storage/configs/hass:/config
       - /etc/localtime:/etc/localtime:ro
-    restart: unless-stopped
+    restart: always
     privileged: true
     network_mode: host
